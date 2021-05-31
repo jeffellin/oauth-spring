@@ -1,0 +1,19 @@
+# 4ihhe00gt2jusvej916soa9sv0 clientid
+# secret kc4shn87ct6v9mbp8mer8dmmu1f1hg9vihilo2h350eh6c5o1sk
+server:
+  port: 8081
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          cognito:
+            issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_TA0Csivga
+            user-info-uri: http://localhost:8082/userInfo
+            userNameAttribute: username
+        registration:
+          cognito:
+            authorization-grant-type: authorization_code
+            client-id:
+            client-secret: 
+            scope: email,openid

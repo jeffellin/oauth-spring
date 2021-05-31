@@ -1,0 +1,19 @@
+# 4ihhe00gt2jusvej916soa9sv0 clientid
+# secret kc4shn87ct6v9mbp8mer8dmmu1f1hg9vihilo2h350eh6c5o1sk
+server:
+  port: 8083
+app:
+  url: http://localhost:8080
+cognito:
+  rooturl: https://ellin.auth.us-east-1.amazoncognito.com
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_TA0Csivga
+spring.jpa.generate-ddl: false
+spring.datasource.url: jdbc:h2:mem:customer
+spring.jpa.database-platform:  org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled: true
+spring.jpa.show-sql: true
