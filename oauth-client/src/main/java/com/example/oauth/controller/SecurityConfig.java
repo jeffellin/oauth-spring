@@ -58,7 +58,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     // Map the claims found in idToken and/or userInfo
                     // to one or more GrantedAuthority's and add it to mappedAuthorities
                     userInfo.getClaims().forEach((k,v)->{
-                        System.err.println(k);
                         if("position".equals(k)){
                             GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_"+ v.toString().toUpperCase()) ;
                             mappedAuthorities.add(ga);
