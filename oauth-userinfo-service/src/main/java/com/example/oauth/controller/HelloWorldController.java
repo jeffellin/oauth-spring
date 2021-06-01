@@ -23,41 +23,39 @@ public class HelloWorldController {
 
     RestTemplateBuilder restTemplateBuilder;
 
-    @GetMapping("/")
-    public @ResponseBody Map<String,Object> sayHello(){
 
-        System.err.println("----wwwww----");
-
-        Map map = new HashMap();
-        map.put("hello","world");
-        map.put("security",getUserInfo());
-        return map;
-    }
 
     @GetMapping("/userInfo")
     public @ResponseBody Map<String,Object> userInfo(){
+        String sub = getSub();
+        String userName = getUserName();
+        Map userInfo = getUserInfo(userName);
+        userInfo.put("username",userName);
+        userInfo.put("sub",sub);
+        return userInfo;
+    }
 
-        System.err.println("----wwwww----");
+    private String getSub(){
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return jwt.getClaim("sub");
+    }
+
+    private String getUserName(){
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return jwt.getClaimAsString("username");
+    }
+
+    private Map getUserInfo(String userName){
+
+        //do something meaningful here.
 
         Map map = new HashMap();
         map.put("claim_me","jeff");
-        map.put("username","jellin");
+        map.put("username",userName);
         map.put("homestore","234");
         map.put("position","manager");
         map.put("sub","a1afeba2-f0d7-447d-950c-e934fe67176e");
         return map;
-    }
-
-
-
-    private Map getUserInfo(){
-        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        Jwt jtw = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Collection authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        Map result = new HashMap();
-        result.put("principal",principal);
-        result.put("authorities",authorities);
-        return result;
     }
 
 }
