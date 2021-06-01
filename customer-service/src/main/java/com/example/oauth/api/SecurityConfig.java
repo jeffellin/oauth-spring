@@ -61,37 +61,6 @@ public class SecurityConfig  extends WebSecurityConfigurerAdapter {
 
     }
 
-    private GrantedAuthoritiesMapper userAuthoritiesMapper() {
-        return (authorities) -> {
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-
-            authorities.forEach(authority -> {
-                if (OidcUserAuthority.class.isInstance(authority)) {
-                    OidcUserAuthority oidcUserAuthority = (OidcUserAuthority) authority;
-
-                    OidcIdToken idToken = oidcUserAuthority.getIdToken();
-                    OidcUserInfo userInfo = oidcUserAuthority.getUserInfo();
-                    // Map the claims found in idToken and/or userInfo
-                    // to one or more GrantedAuthority's and add it to mappedAuthorities
-                    userInfo.getClaims().forEach((k, v) -> {
-                        System.err.println(k);
-                        if ("position".equals(k)) {
-                            GrantedAuthority ga = new SimpleGrantedAuthority("ROLE_" + v.toString().toUpperCase());
-                            mappedAuthorities.add(ga);
-                        }
-                    });
-                } else if (OAuth2UserAuthority.class.isInstance(authority)) {
-                    OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
-
-                    Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
-
-                    // Map the attributes found in userAttributes
-                    // to one or more GrantedAuthority's and add it to mappedAuthorities
-
-                }
-            });
-
-            return mappedAuthorities;
-        };
+    
     }
 }
