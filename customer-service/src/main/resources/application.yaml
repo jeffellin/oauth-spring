@@ -7,13 +7,16 @@ app:
 cognito:
   rooturl: https://ellin.auth.us-east-1.amazoncognito.com
 spring:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    database-platform:  org.hibernate.dialect.H2Dialect
+    show-sql: true
+  datasource:
+    url: jdbc:h2:mem:customer
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_TA0Csivga
-spring.jpa.generate-ddl: false
-spring.datasource.url: jdbc:h2:mem:customer
-spring.jpa.database-platform:  org.hibernate.dialect.H2Dialect
-spring.h2.console.enabled: true
-spring.jpa.show-sql: true
