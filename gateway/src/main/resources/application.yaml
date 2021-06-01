@@ -1,8 +1,7 @@
-# 4ihhe00gt2jusvej916soa9sv0 clientid
-# secret kc4shn87ct6v9mbp8mer8dmmu1f1hg9vihilo2h350eh6c5o1sk
-server:
-  port: 8081
+server.port: 8890
 spring:
+  application:
+    name: travel-spring-cloud-gateway
   security:
     oauth2:
       client:
@@ -17,3 +16,14 @@ spring:
             client-id: 4ihhe00gt2jusvej916soa9sv0
             client-secret: kc4shn87ct6v9mbp8mer8dmmu1f1hg9vihilo2h350eh6c5o1sk
             scope: email,openid
+
+  cloud:
+    gateway:
+      routes:
+        - id: httpbin
+          uri: https://httpbin.org
+          predicates:
+            - Path=/httpbin/**
+          filters:
+            - StripPrefix=1
+            - TokenRelay
