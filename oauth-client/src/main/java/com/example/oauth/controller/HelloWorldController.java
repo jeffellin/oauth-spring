@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.*;
 
 @RestController
-@PreAuthorize("hasAuthority('ROLE_USER')") // This works as expected
 @RequiredArgsConstructor
 public class HelloWorldController {
 
@@ -25,12 +24,15 @@ public class HelloWorldController {
     final RestTemplateBuilder restTemplateBuilder;
 
     @GetMapping("/")
+    //@PreAuthorize("principal.getClaim('username')=='jeff@ellin.com'")
     public @ResponseBody Map<String,Object> sayHello(){
-
+        DefaultOidcUser principal = (DefaultOidcUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        principal.getClaim("username");
         System.err.println("----wwwww----");
 
         Map map = new HashMap();
         map.put("hello","world");
+        map.put("prin", principal.getClaim("username"));
         map.put("security",getUserInfo());
         return map;
     }
