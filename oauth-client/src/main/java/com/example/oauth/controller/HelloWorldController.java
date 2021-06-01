@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.*;
@@ -20,8 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class HelloWorldController {
 
-
-    final RestTemplateBuilder restTemplateBuilder;
+    final WebClient webClient;
 
     @GetMapping("/")
     //@PreAuthorize("principal.getClaim('username')=='jeff@ellin.com'")
@@ -39,26 +40,32 @@ public class HelloWorldController {
 
     @GetMapping("/customer")
     public @ResponseBody  List<Customer> addCustomer() throws Exception {
-        RestTemplate rt = restTemplateBuilder.additionalInterceptors().build();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-        return rt.exchange("http://localhost:8083/",HttpMethod.GET,httpEntity,List.class ).getBody();
-        //return Customer.builder().firstName("jeff").lastName("ellin").build();
+
+        return webClient
+                .get()
+                .uri("/")
+                .retrieve()
+                .bodyToMono(List.class)
+                .block();
+
     }
 
     @GetMapping("/createcustomer")
     public @ResponseBody Customer createcustomer() throws Exception {
-        RestTemplate rt = restTemplateBuilder.build();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(getToken());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
         String body = "{\"firstName\":\"jeff\",\"lastName\":\"ellin\"}";
-        HttpEntity<String> httpEntity = new HttpEntity<>(body,headers);
-        Customer foo = rt.postForObject(new URI("http://localhost:8083/"), httpEntity,Customer.class);
-        return foo;
+        Customer cu = Customer.builder().firstName("jeff").lastName("ellin").build();
+        return webClient
+                .post()
+                .uri("/")
+                .body(Mono.just(cu),Customer.class)
+                .retrieve()
+                .bodyToMono(Customer.class)
+                .block();
     }
 
     private String getToken(){

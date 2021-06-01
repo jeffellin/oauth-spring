@@ -1,6 +1,8 @@
 package com.example.oauth.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -10,10 +12,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
@@ -24,6 +32,9 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
@@ -33,6 +44,7 @@ import java.util.Set;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
@@ -45,6 +57,54 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().anyRequest().authenticated();
         http.headers().frameOptions().sameOrigin();
 
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(
+            ClientRegistrationRepository registrationRepository,
+            OAuth2AuthorizedClientRepository clientRepository) {
+        DefaultOAuth2AuthorizedClientManager clientManager = new DefaultOAuth2AuthorizedClientManager(
+                registrationRepository, clientRepository);
+        clientManager.setAuthorizedClientProvider(OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build());
+
+        return clientManager;
+    }
+
+    @Bean("readClient")
+    public WebClient readClient( OAuth2AuthorizedClientManager authorizedClientManager) {
+        return createWebClient("http://localhost:8080/", authorizedClientManager, "cognito");
+    }
+
+    private WebClient createWebClient(String baseUri, OAuth2AuthorizedClientManager authorizedClientManager, String clientRegistrationId) {
+
+        ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
+                new ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
+        oauth2Client.setDefaultClientRegistrationId(clientRegistrationId);
+
+        return WebClient.builder()
+                .apply(oauth2Client.oauth2Configuration())
+                .baseUrl(baseUri).filters(exchangeFilterFunctions -> {
+                    exchangeFilterFunctions.add(logRequest());
+                })
+                .build();
+
+   
+    }
+
+
+    private ExchangeFilterFunction logRequest() {
+        return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
+                StringBuilder sb = new StringBuilder("Request: \n");
+                //append clientRequest method and url
+                clientRequest
+                        .headers()
+                        .forEach((name, values) -> values.forEach(value -> sb.append(name).append(value)));
+                            log.info(sb.toString());
+
+            return Mono.just(clientRequest);
+        });
     }
 
     private GrantedAuthoritiesMapper userAuthoritiesMapper() {

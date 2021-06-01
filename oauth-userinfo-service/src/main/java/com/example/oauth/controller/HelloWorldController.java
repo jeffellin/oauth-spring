@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class HelloWorldController {
 
     RestTemplateBuilder restTemplateBuilder;
+
 
 
 
