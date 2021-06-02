@@ -12,23 +12,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.*;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 @RequiredArgsConstructor
-public class SecurityConfig  extends WebSecurityConfigurerAdapter {
+public class SecurityConfig  {
 
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-
-      //  http.oauth2ResourceServer().opaqueToken().introspector(new MyConverter());
+    @Bean
+    SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.oauth2ResourceServer().jwt().jwtAuthenticationConverter(this.getConverter());
-        http.authorizeRequests().anyRequest().authenticated();
-        http.headers().frameOptions().sameOrigin();
+        return http.build();
     }
+
 
     @Bean
     public JwtAuthenticationConverter getConverter(){
