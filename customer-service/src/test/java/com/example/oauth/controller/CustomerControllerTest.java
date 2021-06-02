@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -33,7 +34,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,7 +57,7 @@ class CustomerControllerTest  {
                         Collections.singletonList(Customer.builder().build())
                 );
 
-        OAuth2AuthenticationToken authenticationToken = createToken();
+        BearerTokenAuthentication authenticationToken = createToken();
 
         this.mockMvc.perform(get("/").with(authentication(authenticationToken)))
                 .andExpect(status().isOk())
@@ -69,9 +69,13 @@ class CustomerControllerTest  {
 
 
 
-    private OAuth2AuthenticationToken createToken() {
+    private BearerTokenAuthentication createToken() {
+
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "a", Instant.now(), Instant.now().plus(
+                Duration.ofDays(1)));
         Set<GrantedAuthority> authorities = new HashSet<>(AuthorityUtils.createAuthorityList("ROLE_MANAGER"));
         OAuth2User oAuth2User = new DefaultOAuth2User(authorities, Collections.singletonMap("name", "rob"), "name");
-        return new OAuth2AuthenticationToken(oAuth2User, authorities, "login-client");
+
+        return new BearerTokenAuthentication(oAuth2User,accessToken, authorities);
     }
 }
