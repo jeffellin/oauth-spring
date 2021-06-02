@@ -10,6 +10,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -49,7 +52,7 @@ class CustomerControllerTest  {
                         Collections.singletonList(Customer.builder().build())
                 );
 
-        BearerTokenAuthentication authenticationToken = createToken();
+        OidcTokenAuthenticationToken authenticationToken = createToken();
 
         this.mockMvc.perform(get("/").with(authentication(authenticationToken)))
                 .andExpect(status().isOk())
@@ -59,7 +62,7 @@ class CustomerControllerTest  {
     @Test
     public void whoami() throws Exception {
 
-        BearerTokenAuthentication authenticationToken = createToken();
+        OidcTokenAuthenticationToken authenticationToken = createToken();
 
         this.mockMvc.perform(get("/whoami").with(authentication(authenticationToken)))
                 .andExpect(status().isOk())
@@ -68,16 +71,13 @@ class CustomerControllerTest  {
 
     }
 
+    private OidcTokenAuthenticationToken createToken() {
 
 
-
-    private BearerTokenAuthentication createToken() {
-
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "a", Instant.now(), Instant.now().plus(
-                Duration.ofDays(1)));
+        OidcIdToken accessT = new OidcIdToken("m",Instant.now(),Instant.now().plus(Duration.ofDays(1)),Collections.singletonMap("sub", "rob"));
         Set<GrantedAuthority> authorities = new HashSet<>(AuthorityUtils.createAuthorityList("ROLE_MANAGER"));
-        OAuth2User oAuth2User = new DefaultOAuth2User(authorities, Collections.singletonMap("name", "rob"), "name");
+        OidcUser oAuth2User = new DefaultOidcUser(authorities,accessT);
 
-        return new BearerTokenAuthentication(oAuth2User,accessToken, authorities);
+        return new OidcTokenAuthenticationToken(oAuth2User,accessT, authorities);
     }
 }
