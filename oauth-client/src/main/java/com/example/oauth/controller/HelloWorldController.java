@@ -1,21 +1,15 @@
 package com.example.oauth.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
 import java.util.*;
 
 @RestController
@@ -36,6 +30,22 @@ public class HelloWorldController {
         map.put("prin", principal.getClaim("username"));
         map.put("security",getUserInfo());
         return map;
+    }
+
+    @PostMapping("/customer")
+    public @ResponseBody  List<Customer> addCustomerPost() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+        return webClient
+                .get()
+                .uri("/")
+                .retrieve()
+                .bodyToMono(List.class)
+                .block();
+
     }
 
     @GetMapping("/customer")

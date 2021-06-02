@@ -51,7 +51,7 @@ public class SecurityConfig  {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {
-                if (OidcUserAuthority.class.isInstance(authority)) {
+                if (authority instanceof OidcUserAuthority) {
                     OidcUserAuthority oidcUserAuthority = (OidcUserAuthority)authority;
 
                     OidcIdToken idToken = oidcUserAuthority.getIdToken();
@@ -64,7 +64,7 @@ public class SecurityConfig  {
                             mappedAuthorities.add(ga);
                         }
                     });
-                } else if (OAuth2UserAuthority.class.isInstance(authority)) {
+                } else if (authority instanceof OAuth2UserAuthority) {
                     OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority)authority;
 
                     Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
