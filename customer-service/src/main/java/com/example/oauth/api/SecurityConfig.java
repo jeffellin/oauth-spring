@@ -42,7 +42,7 @@ public class SecurityConfig  {
       public Collection<GrantedAuthority> convert(Jwt jwt) {
 
           //call service here
-         System.out.println("its me");
+         System.err.println("its me");
           return Collections.singletonList(new SimpleGrantedAuthority("ROLE_MANAGER"));
       }
   }

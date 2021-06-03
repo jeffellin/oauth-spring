@@ -8,6 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.GeneratedValue;
@@ -52,6 +56,8 @@ public class CustomerController {
     }
 
     @GetMapping("/whoami")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
+
     public @ResponseBody Map whoAmI(){
 
         Map map = new HashMap();
@@ -62,7 +68,7 @@ public class CustomerController {
 
 
     private Map getUserInfo(){
-        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        Jwt principal = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Collection authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         Map result = new HashMap();
         result.put("principal",principal);
