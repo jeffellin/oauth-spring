@@ -1,7 +1,7 @@
 # 4ihhe00gt2jusvej916soa9sv0 clientid
 # secret kc4shn87ct6v9mbp8mer8dmmu1f1hg9vihilo2h350eh6c5o1sk
 server:
-  port: 8081
+  port: 8080
 spring:
   security:
     oauth2:

@@ -1,10 +1,9 @@
 package com.example.oauth.api;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component
@@ -19,6 +18,10 @@ public class CustomerService {
 
       return  customerRepository.save(customer);
 
+    }
+
+    public Optional<Customer> findById(String id){
+        return customerRepository.findById(id);
     }
 
     public void delete(String customer){

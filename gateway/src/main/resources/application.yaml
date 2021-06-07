@@ -1,4 +1,4 @@
-server.port: 8890
+server.port: 8080
 spring:
   application:
     name: travel-spring-cloud-gateway
